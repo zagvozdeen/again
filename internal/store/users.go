@@ -20,9 +20,9 @@ func (s *Store) GetUserByAPIToken(ctx context.Context, token string) (*models.Us
 	err := s.querier(ctx).QueryRow(
 		ctx,
 		"WITH used AS (UPDATE api_tokens SET last_used_at = now() WHERE token_hash = $1 RETURNING user_id) "+
-			"SELECT u.id, u.email, u.timezone, u.ui_language, u.created_at FROM users u JOIN used ON used.user_id = u.id",
+			"SELECT u.id, u.name, u.email, u.ui_language, u.created_at, u.updated_at FROM users u JOIN used ON used.user_id = u.id",
 		hex.EncodeToString(hash[:]),
-	).Scan(&u.ID, &u.Email, &u.Timezone, &u.UILanguage, &u.CreatedAt)
+	).Scan(&u.ID, &u.Name, &u.Email, &u.UILanguage, &u.CreatedAt, &u.UpdatedAt)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, ErrUserNotFound
